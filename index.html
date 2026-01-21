@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Catatan Keuangan Haikal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0d73d8;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            background: rgb(40, 194, 221);
+            padding: 20px;
+            border-radius: 10px;
+            margin: auto;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+        }
+        .romantis {
+            text-align: center;
+            font-style: italic;
+            color: #d63384;
+            margin-bottom: 15px;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+        }
+        button {
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .plus {
+            background: #4CAF50;
+            color: white;
+        }
+        .minus {
+            background: #f44336;
+            color: white;
+        }
+        .summary {
+            background: #eef;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 15px;
+        }
+        ul {
+            padding-left: 0;
+        }
+        li {
+            list-style: none;
+            background: #f9f9f9;
+            margin-top: 6px;
+            padding: 8px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .delete {
+            background: #ff5252;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #notif {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+            color: #d63384;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Catatan Keuangan Haikal</h2>
+    <p class="romantis">
+        “ HALLO SAYANG SUAMIKU UWUWU, JANGAN BOROS BOROS YAAA”
+    </p>
+
+    <input type="text" id="keterangan" placeholder="Keterangan (contoh: makan berdua)">
+    <input type="number" id="jumlah" placeholder="Nominal (Rp)">
+
+    <button class="plus" onclick="tambah('plus')">Tambah Penghasilan</button>
+    <button class="minus" onclick="tambah('minus')">Tambah Pengeluaran</button>
+
+    <div class="summary">
+        <p><strong>Saldo:</strong> Rp <span id="saldo">0</span></p>
+        <p><strong>Total Pengeluaran:</strong> Rp <span id="totalKeluar">0</span></p>
+    </div>
+
+    <p id="notif"></p>
+
+    <h3>Riwayat Transaksi</h3>
+    <ul id="riwayat"></ul>
+</div>
+
+<script>
+    let data = JSON.parse(localStorage.getItem("keuanganPasangan")) || [];
+
+    const pesanPengeluaran = [
+        "Gapapa ya, yang penting jangan boros 💕",
+        "Sedikit berkurang, jangan boros sayanggg 🤍",
+    ];
+
+    function tambah(tipe) {
+        const ket = document.getElementById("keterangan").value;
+        const jml = parseInt(document.getElementById("jumlah").value);
+
+        if (!ket || !jml) {
+            alert("Lengkapi data dulu ya suami ❤️");
+            return;
+        }
+
+        data.push({
+            keterangan: ket,
+            jumlah: jml,
+            tipe: tipe
+        });
+
+        simpanData();
+        tampilkanData();
+        resetInput();
+
+        // NOTIF ROMANTIS SAAT PENGELUARAN
+        if (tipe === "minus") {
+            const notif = document.getElementById("notif");
+            const pesan = pesanPengeluaran[
+                Math.floor(Math.random() * pesanPengeluaran.length)
+            ];
+            notif.textContent = pesan;
+            notif.style.display = "block";
+
+            setTimeout(() => {
+                notif.style.display = "none";
+            }, 3000);
+        }
+    }
+
+    function hapus(index) {
+        data.splice(index, 1);
+        simpanData();
+        tampilkanData();
+    }
+
+    function simpanData() {
+        localStorage.setItem("keuanganPasangan", JSON.stringify(data));
+    }
+
+    function tampilkanData() {
+        let saldo = 0;
+        let totalKeluar = 0;
+        const riwayat = document.getElementById("riwayat");
+        riwayat.innerHTML = "";
+
+        data.forEach((item, index) => {
+            if (item.tipe === "plus") {
+                saldo += item.jumlah;
+            } else {
+                saldo -= item.jumlah;
+                totalKeluar += item.jumlah;
+            }
+
+            const li = document.createElement("li");
+            li.innerHTML = `
+                ${item.tipe === "plus" ? "Penghasilan" : "Pengeluaran"} - 
+                ${item.keterangan} : Rp ${item.jumlah}
+                <button class="delete" onclick="hapus(${index})">Delete</button>
+            `;
+            riwayat.appendChild(li);
+        });
+
+        document.getElementById("saldo").textContent = saldo;
+        document.getElementById("totalKeluar").textContent = totalKeluar;
+    }
+
+    function resetInput() {
+        document.getElementById("keterangan").value = "";
+        document.getElementById("jumlah").value = "";
+    }
+
+    tampilkanData();
+</script>
+
+</body>
+</html>
